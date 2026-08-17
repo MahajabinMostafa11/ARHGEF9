@@ -1,6 +1,6 @@
 # ARHGEF9
 
-One sentence about this disease project
+A knowledge base tracking ARHGEF9- related developmental and epileptic encephalopathy 8 (DEE8)- molecular genetics, clinical features, and treatment literature.
 
 <!--
   This README was generated from README.md.template by
