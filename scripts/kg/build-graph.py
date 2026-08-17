@@ -29,6 +29,7 @@ in Python so the in-process API is available to downstream agent tools.
 
 import argparse
 import os
+import json
 import subprocess
 import sys
 import time
@@ -208,6 +209,19 @@ def main():
     ontology_path = fetch_spec("ontology.ttl", refresh=args.refresh_spec)
     shapes_path = fetch_spec("shapes.ttl", refresh=args.refresh_spec)
     context_path = fetch_spec("context.jsonld", refresh=args.refresh_spec)
+ 
+    local_context_file = SCRIPT_DIR / "local-context.jsonld"
+    if local_context_file.exists():
+      with open(context_path) as f:
+        base_ctx = json.load(f)["@context"]
+      with open(local_context_file) as f:
+        local_ctx = json.load(f)["@context"]
+      merged_context_path = BUILD_DIR / "context-merged.jsonld"
+      merged_context_path.write_text(
+        json.dumps({"@context": {**base_ctx, **local_ctx}}, indent=2)
+    )
+    context_path = merged_context_path
+
     print("", file=sys.stderr)
 
     # --- Step 2: extract JSON-LD ---
@@ -311,6 +325,7 @@ def main():
 
         shapes_graph = Graph()
         shapes_graph.parse(str(shapes_path), format="turtle")
+        shapes_graph.bind("llm-wiki-colab", "https://la3d.github.io/llm-wiki-colab/ontology#", override=True)
 
         try:
             conforms, _report_graph, report_text = pyshacl.validate(

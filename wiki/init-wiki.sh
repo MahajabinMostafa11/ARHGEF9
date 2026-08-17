@@ -60,7 +60,9 @@ PROJECT_NAME=""
 REPO_NAME_OVERRIDE=""
 USE_GITHUB=false
 WIKI_AGENT=""
+MONDO_ID=""
 STAMP_MISSING_ONLY=false
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -68,6 +70,7 @@ while [[ $# -gt 0 ]]; do
         --repo-name) REPO_NAME_OVERRIDE="$2"; shift 2 ;;
         --github) USE_GITHUB=true; shift ;;
         --agent) WIKI_AGENT="$2"; shift 2 ;;
+        --mondo) MONDO_ID="$2"; shift 2 ;;
         --stamp-missing-templates) STAMP_MISSING_ONLY=true; shift ;;
         -h|--help)
             sed -n '2,/^$/p' "$0" | sed 's/^# \?//'
@@ -224,12 +227,18 @@ if [[ "$MODE" == "create" ]]; then
 fi
 
 # --- Write Home_${REPO_NAME}.md (create only — never overwrite) ---
+MONDO_FM=""
+if [[ -n "$MONDO_ID" ]]; then
+    MONDO_FM=$'\n'"mondo: \"${MONDO_ID}\""
+fi
 if [[ ! -f "$WIKI_DIR/${HOME_NS}.md" ]]; then
 cat > "$WIKI_DIR/${HOME_NS}.md" << HOMEEOF
 ---
 type: index
 up: "[[WIKI-INDEX]]"
+created: "$(date +%Y-%m-%d)"${MONDO_FM}
 ---
+
 
 # ${PROJECT_NAME}
 
@@ -274,7 +283,9 @@ cat > "$WIKI_DIR/${INDEX_NS}.md" << INDEXEOF
 ---
 type: index
 up: "[[${HOME_NS}]]"
+created: "$(date +%Y-%m-%d)"
 ---
+
 
 # Index — ${PROJECT_NAME}
 
@@ -293,7 +304,9 @@ cat > "$WIKI_DIR/${LOG_NS}.md" << LOGEOF
 ---
 type: index
 up: "[[${HOME_NS}]]"
+created: "$(date +%Y-%m-%d)"
 ---
+
 
 # Log — ${PROJECT_NAME}
 
@@ -322,6 +335,7 @@ if [[ "$MODE" == "create" ]]; then
 ---
 type: reference
 up: "[[${HOME_NS}]]"
+created: "$(date +%Y-%m-%d)"
 ---
 
 # Wiki Schema — ${PROJECT_NAME}
